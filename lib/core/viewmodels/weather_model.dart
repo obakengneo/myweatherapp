@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:myweatherapp/core/enums/viewstate.dart';
 import 'package:myweatherapp/core/models/city.dart';
 import 'package:myweatherapp/core/services/api.dart';
@@ -9,14 +10,18 @@ class WeatherModel extends BaseModel {
 
   List<City> city;
   List<Map<String, dynamic>> consolidatedWeather;
+  Image png;
 
   Future<List<Map<String, dynamic>>> fetchSearch(String input) async {
     setState(ViewState.Busy);
-    city = await _api.getSearchResults(input);
-    consolidatedWeather =
-        await _api.getConsolidateWeather(city[0].woeid.toString());
+    try {
+      city = await _api.getSearchResults(input);
+      consolidatedWeather =
+          await _api.getConsolidateWeather(city[0].woeid.toString());
+    } catch (error) {
+      return null;
+    }
     setState(ViewState.Idle);
-
     return consolidatedWeather;
   }
 }

@@ -5,6 +5,7 @@ import 'package:myweatherapp/ui/views/base_view.dart';
 
 class WeatherView extends StatelessWidget {
   String city = 'Johannesburg';
+  String errorMessage = '';
 
   @override
   Widget build(BuildContext context) {
@@ -22,24 +23,35 @@ class WeatherView extends StatelessWidget {
                                 .toLowerCase() +
                             '.png'),
                         fit: BoxFit.cover)),
-                child: Scaffold(
-                  backgroundColor: Colors.transparent,
-                  body: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Column(
-                        children: [
-                          Center(
-                            child: Text(
-                              model.consolidatedWeather[0]['the_temp']
-                                      .round()
-                                      .toString() +
-                                  ' °C',
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 60.0),
-                            ),
+              child: model.consolidatedWeather[0]['weather_state_abbr'] == null
+                  ? Center(child: CircularProgressIndicator())
+                  : Scaffold(
+                backgroundColor: Colors.transparent,
+                body: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Column(
+                      children: [
+                        Center(
+                          child: Image.network(
+                            'https://www.metaweather.com/static/img/weather/png/' +
+                                model
+                                    .consolidatedWeather[0]['weather_state_abbr'] +
+                                '.png',
+                            width: 100,
                           ),
+                        ),
+                        Center(
+                          child: Text(
+                            model.consolidatedWeather[0]['the_temp']
+                                .round()
+                                .toString() +
+                                ' °C',
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 60.0),
+                          ),
+                        ),
                           Center(
                             child: Text(
                               model.city[0].location,
@@ -56,7 +68,12 @@ class WeatherView extends StatelessWidget {
                               child: TextField(
                                 onSubmitted: (String input) {
                                   city = input;
-                                  model.fetchSearch(input);
+                                  var list = model.fetchSearch(input);
+
+                                  if (list == null) {
+                                    errorMessage =
+                                    "Sorry, we don't have data about this city. Please try another one";
+                                  }
                                 },
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 25),
@@ -66,7 +83,14 @@ class WeatherView extends StatelessWidget {
                                         color: Colors.white, fontSize: 18.0),
                                     prefixIcon: Icon(Icons.search,
                                         color: Colors.white)),
-                              ))
+                              ),
+                          ),
+                          Text(
+                            errorMessage,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.red, fontSize: 18.0),
+                          )
                         ],
                       )
                     ],
